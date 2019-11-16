@@ -138,3 +138,6 @@ find | grep .mp3 >> ~/Desktop/FlaggedFiles.txt
 find | grep .mp4 >> ~/Desktop/FlaggedFiles.txt
 find | grep .mov >> ~/Desktop/FlaggedFiles.txt
 find | grep .pdf >> ~/Desktop/FlaggedFiles.txt
+
+
+#sed "s/PermitRootLogin */PermitRootLogin no/" ~/Desktop/die.txt > ~/Desktop/temp.txt
