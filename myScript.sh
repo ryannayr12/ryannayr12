@@ -1,63 +1,96 @@
 #!/bin/bash
 
+scanForBadStuff(){
+    printf "\033[1;31mWe Gonna Scan for Viruses and stuff\033[0m\n"
+    #--------- Scan For Vulnerabilities and viruses ----------------
+
+    #chkrootkit
+    apt-get install -y chkrootkit clamav rkhunter apparmor apparmor-profiles
+    printf "\033[1;31mStarting CHKROOTKIT scan...\033[0m\n"
+    chkrootkit -q
+    cont
+
+    #Rkhunter
+    printf "\033[1;31mStarting RKHUNTER scan...\033[0m\n"
+    rkhunter --update
+    rkhunter --propupd #Run this once at install
+    rkhunter -c --enable all --disable none
+    cont
+    
+    #Lynis
+    printf "\033[1;31mStarting LYNIS scan...\033[0m\n"
+    cd /usr/share/lynis/
+    /usr/share/lynis/lynis update info
+    /usr/share/lynis/lynis audit system
+    cont
+    
+    #ClamAV
+    printf "\033[1;31mStarting CLAMAV scan...\033[0m\n"
+    systemctl stop clamav-freshclam
+    freshclam --stdout
+    systemctl start clamav-freshclam
+    clamscan -r -i --stdout --exclude-dir="^/sys" /
+    cont
+}
+
 #get a list of all packages
-dpkg --get-selections | sed "s/.*deinstall//" | sed "s/install$//g" > ~/Desktop/pkglist
+dpkg --get-selections | sed "s/.*deinstall//" | sed "s/install$//g" > ~/Desktop/Ryans_files/pkglist
 
 #delete all known good packages off the list
 for file in `cat ~/Desktop/Ryans_files/good_pkglist.txt`
  do
-   grep -v  ${file}  ~/Desktop/pkglist > ~/Desktop/temp.txt
-   mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+   grep -v  ${file}  ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+   mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
  done
 
 #search through the list for a list of various bad packages
-if grep "apache2" ~/Desktop/pkglist
+if grep "apache2" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge apache2
-    grep -v "apache2" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "apache2" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "bind9" ~/Desktop/pkglist
+if grep "bind9" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge bind9
-    grep -v "bind9" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "bind9" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "nginx" ~/Desktop/pkglist
+if grep "nginx" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge nginx
-    grep -v "nginx" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "nginx" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "wesnoth" ~/Desktop/pkglist
+if grep "wesnoth" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge wesnoth*
-    grep -v "wesnoth" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "wesnoth" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "netcat" ~/Desktop/pkglist
+if grep "netcat" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge netcat
-    grep -v "netcat" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "netcat" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "frostwire" ~/Desktop/pkglist
+if grep "frostwire" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge frostwire
-    grep -v "frostwire" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "frostwire" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
-if grep "telnet" ~/Desktop/pkglist
+if grep "telnet" ~/Desktop/Ryans_files/pkglist
 then
     apt-get -y purge telnet
-    grep -v "telnet" ~/Desktop/pkglist > ~/Desktop/temp.txt
-    mv -f ~/Desktop/temp.txt ~/Desktop/pkglist
+    grep -v "telnet" ~/Desktop/Ryans_files/pkglist > ~/Desktop/Ryans_files/temp.txt
+    mv -f ~/Desktop/Ryans_files/temp.txt ~/Desktop/Ryans_files/pkglist
 fi
 
 #if grep "ftp" ~/Desktop/pkglist
@@ -81,10 +114,10 @@ ufw enable
 cat ~/Desktop/Ryans_files/My_lightdm.txt > /etc/lightdm/lightdm.conf
 
 #set password min and max days
-sed "s/PASS_MAX_DAYS.*/PASS_MAX_DAYS 30/" /etc/login.defs > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt /etc/login.defs
-sed "s/PASS_MIN_DAYS.*/PASS_MIN_DAYS 3/" /etc/login.defs > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt /etc/login.defs
+sed "s/PASS_MAX_DAYS.*/PASS_MAX_DAYS 30/" /etc/login.defs > ~/Desktop/Ryans_files/temp.txt
+mv -f ~/Desktop/Ryans_files/temp.txt /etc/login.defs
+sed "s/PASS_MIN_DAYS.*/PASS_MIN_DAYS 3/" /etc/login.defs > ~/Desktop/Ryans_files/temp.txt
+mv -f ~/Desktop/Ryans_files/temp.txt /etc/login.defs
 
 #install and set up ssh
 apt-get install ssh
@@ -112,23 +145,23 @@ echo "-:root:ALL EXCEPT LOCAL" >> /etc/security/access.conf
 
 
 #get a list of users (with a few extras)
-grep "/home/" /etc/passwd | sed "s/:.*//" > ~/Desktop/myUserList
+grep "/home/" /etc/passwd | sed "s/:.*//" > ~/Desktop/Ryans_files/myUserList
 
 #get rid of the extra users from the list
-grep -v "guest" ~/Desktop/myUserList > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt ~/Desktop/myUserList
-grep -v "syslog" ~/Desktop/myUserList > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt ~/Desktop/myUserList
-grep -v "usbmux" ~/Desktop/myUserList > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt ~/Desktop/myUserList
+grep -v "guest" ~/Desktop/Ryans_files/myUserList > ~/Desktop/temp.txt
+mv -f ~/Desktop/temp.txt ~/Desktop/Ryans_files/myUserList
+grep -v "syslog" ~/Desktop/Ryans_files/myUserList > ~/Desktop/temp.txt
+mv -f ~/Desktop/temp.txt ~/Desktop/Ryans_files/myUserList
+grep -v "usbmux" ~/Desktop/Ryans_files/myUserList > ~/Desktop/temp.txt
+mv -f ~/Desktop/temp.txt ~/Desktop/Ryans_files/myUserList
 
 #remove my name from the list
 myUsers=$(who | awk ‘{print $1;}’)
-grep -v $myUsers ~/Desktop/myUserList > ~/Desktop/temp.txt
-mv -f ~/Desktop/temp.txt ~/Desktop/myUserList
+grep -v $myUsers ~/Desktop/Ryans_files/myUserList > ~/Desktop/temp.txt
+mv -f ~/Desktop/temp.txt ~/Desktop/Ryans_files/myUserList
 
 #change the password for everyone on the list to a seure password
-for file in `cat ~/Desktop/myUserList`
+for file in `cat ~/Desktop/Ryans_files/myUserList`
  do
    echo -e "Cyb3rP4triot\!\nCyb3rP4triot\!" | passwd $file
  done
@@ -194,14 +227,6 @@ find | grep .ogg >> ~/Desktop/FlaggedFiles.txt
 find | grep .gif >> ~/Desktop/FlaggedFiles.txt
 find | grep .jpeg >> ~/Desktop/FlaggedFiles.txt
 
-sysctl -w net.ipv4.tcp_syncookies=1
-    sysctl -w net.ipv4.ip_forward=0
-    sysctl -w net.ipv4.conf.all.send_redirects=0
-    sysctl -w net.ipv4.conf.default.send_redirects=0
-    sysctl -w net.ipv4.conf.all.accept_redirects=0
-    sysctl -w net.ipv4.conf.default.accept_redirects=0
-    sysctl -w net.ipv4.conf.all.secure_redirects=0
-    sysctl -w net.ipv4.conf.default.secure_redirects=0
-    sysctl -p
+scanForBadStuff
 
 #sed "s/PermitRootLogin */PermitRootLogin no/" ~/Desktop/die.txt > ~/Desktop/temp.txt
